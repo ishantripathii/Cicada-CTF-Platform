@@ -3,45 +3,31 @@ import sqlite3
 import os
 
 app = Flask(__name__)
-
-# ==========================================
-# ⚙️ GAME MASTER SETTINGS (CHANGE THESE!) ⚙️
-# ==========================================
-
-# Choose which team this laptop is hosting: "ALPHA", "BRAVO", or "CHARLIE"
 NODE_TEAM = "ALPHA" 
-
-# Put this laptop's actual Hotspot IP here
 NODE_IP = "192.168.137.1" 
 
-# Put the 3 distinct passwords you get from the next station handlers here:
 STATION_PASSWORDS = {
     "ALPHA": "NexusOrbit84",
     "BRAVO": "UrbanVortex95",
     "CHARLIE": "GraniteVault83"
 }
 
-# ==========================================
-
 DB_FILE = f'database_{NODE_TEAM.lower()}.db'
 
-# --- 1. DATABASE SETUP ---
+# DATABASE SETUP
 def setup_database():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     
-    # 1. Public Table
     cursor.execute('''CREATE TABLE IF NOT EXISTS sectors (sector_name TEXT, status TEXT)''')
     cursor.execute("DELETE FROM sectors")
     cursor.execute("INSERT INTO sectors VALUES ('PUBLIC-TERMINAL', 'ONLINE - RESTRICTED MODE')")
     cursor.execute("INSERT INTO sectors VALUES ('TACTICAL-MAP', 'ERROR: DATA CORRUPTED. CHECK INTEL_TABLES.')")
 
-    # 2. Team-Specific Secret Tables 
     cursor.execute("DROP TABLE IF EXISTS intel_alpha")
     cursor.execute("DROP TABLE IF EXISTS intel_bravo")
     cursor.execute("DROP TABLE IF EXISTS intel_charlie")
 
-    # Automatically grab the correct password for this specific laptop!
     current_password = STATION_PASSWORDS[NODE_TEAM]
     formatted_password = f"ACCESS CODE FOR NEXT STATION: {current_password}"
 
@@ -64,7 +50,8 @@ def setup_database():
     conn.close()
     print(f"[*] Database Initialized for {NODE_TEAM} Team.")
     print(f"[*] Hosted at: {NODE_IP}:2026")
-# --- 2. MATRIX RAIN UI DESIGN ---
+    
+# UI DESIGN
 HTML_PAGE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -284,7 +271,7 @@ HTML_PAGE = '''
 </html>
 '''
 
-# --- 3. SERVER LOGIC ---
+# SERVER LOGIC
 @app.route('/', methods=['GET', 'POST'])
 def index():
     results = None
@@ -293,12 +280,10 @@ def index():
     
     if request.method == 'POST':
         search_term = request.form.get('search', '')
-        
-        # Trigger the red alert if they use a single quote
+    
         if "'" in search_term:
             show_hack = True
             
-        # The Vulnerable Query
         query = f"SELECT sector_name, status FROM sectors WHERE sector_name = '{search_term}'"
         
         try:
