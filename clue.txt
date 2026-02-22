@@ -1,0 +1,8 @@
+TARGET NETWORK: CODEX_NODE_ALPHA
+		    Password:codex123
+The IP of the host is: 192.168.137.1.
+
+All ships sail from a port, you have to find the specific one to make your ship sail.
+Navigate the coastal waters from bearing 2000 to 2100.
+Sailors should use a map while sailing.
+Proceed to AB4 Gate 1 Entrance.
